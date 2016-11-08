@@ -1,0 +1,23 @@
+{
+  "name": "wilted",
+  "version": "0.0.1",
+  "description": "A WILT scrobbler for GPMDP.",
+  "main": "main.js",
+  "scripts": {
+    "start": "node main.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/scratso/Wilted.git"
+  },
+  "author": "Damian Heaton <dh64784@gmail.com>",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/scratso/Wilted/issues"
+  },
+  "homepage": "https://github.com/scratso/Wilted#readme",
+  "dependencies": {
+    "nodejs-websocket": "^1.7.0"
+  }
+}
