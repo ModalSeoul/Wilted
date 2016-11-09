@@ -1,0 +1,6 @@
+{
+    "username": false,
+    "password": false,
+    "api": "https://wilt.fm/api/",
+    "websocket": "ws://localhost:5672"
+}

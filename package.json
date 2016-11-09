@@ -4,8 +4,7 @@
   "description": "A WILT scrobbler for GPMDP.",
   "main": "main.js",
   "scripts": {
-    "start": "node main.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node main.js"
   },
   "repository": {
     "type": "git",
@@ -18,6 +17,7 @@
   },
   "homepage": "https://github.com/scratso/Wilted#readme",
   "dependencies": {
-    "nodejs-websocket": "^1.7.0"
+    "nodejs-websocket": "^1.7.0",
+    "request": "^2.78.0"
   }
 }

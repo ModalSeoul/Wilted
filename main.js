@@ -1,20 +1,83 @@
 const websocket = require("nodejs-websocket");
+const fs = require("fs");
+const request = require("request");
+var querystring = require('querystring');
 
-var wsClient = websocket.connect("ws://localhost:5672", connected);
+var conf = JSON.parse(fs.readFileSync("config.json", "utf-8"));
 
-wsClient.on("error", function (error) {
-    console.log("error", error);
-});
-wsClient.on("text", function (str) {
-    var json = JSON.parse(str);
-    if(json.channel == "track"){
-        console.log(json);
-        // alright, at this point we should scrobble to WILT
-        // I'll need to look at https://github.com/ModalSeoul/Weeb-Chrome-Scrobbler/blob/master/WILT.js scrobble function to see how Modal scrobbles data
-        // sending post requests, for ref: http://stackoverflow.com/questions/6158933/how-to-make-an-http-post-request-in-node-js
+if(conf.username !== false && conf.password !== false){
+    var Auth = {
+        'token': '',
+        'drfHeader': ''
+    };
+
+    request.post(
+        `${conf.api}api-token-auth/`,
+        { json: { "username": conf.username,
+                      "password": conf.password } },
+        function (error, response, body) {
+            if (!error && response.statusCode == 200) {
+                console.log("Connected to WILT API and logged in");
+                start();
+                Auth.token = body.token;
+                Auth.drfHeader = `Token ${Auth.token}`;
+            }else if(error){
+                console.log(error);
+            }else{
+                console.log(response, body);
+            }
+        }
+    );
+}else{
+    console.log("Yo, you need to set your WILT.fm username and password in the config.json file.");
+}
+
+function start(){
+    var wsClient = websocket.connect(conf.websocket, connected);
+
+    wsClient.on("error", function (error) {
+        console.log("error", error);
+    });
+    wsClient.on("text", function (str) {
+        var json = JSON.parse(str);
+        if(json.channel == "track"){
+            console.log(json);
+            var song = json.payload;
+            var scrobbleData = {
+                song: song.title,
+                artist: song.artist,
+                album: song.album
+            }
+            var scrobbleSend = querystring.stringify(scrobbleData);
+            var contentLength = scrobbleSend.length;
+            request({
+                headers: {
+                    "Authorization": Auth.drfHeader
+                },
+                url: `${conf.api}scrobbles/`,
+                json: true,
+                body: {
+                    "song": song.title,
+                    "artist": song.artist,
+                    "album": song.album
+                },
+                method: 'POST'
+            }, function (error, response, body) {
+                if (!error && response.statusCode == 200) {
+                    console.log(`Scrobbled ${song.title} by ${song.artist} on the album ${song.album}`);
+                }else if(error){
+                    console.log(error);
+                }else{
+                    console.log(response, body);
+                }
+            });
+            // alright, at this point we should scrobble to WILT
+            // I'll need to look at https://github.com/ModalSeoul/Weeb-Chrome-Scrobbler/blob/master/WILT.js scrobble function to see how Modal scrobbles data
+            // sending post requests, for ref: http://stackoverflow.com/questions/6158933/how-to-make-an-http-post-request-in-node-js
+        }
+    });
+
+    function connected(){
+        console.log("Connected to websocket");
     }
-});
-
-function connected(){
-    console.log("Connected to websocket");
 }
