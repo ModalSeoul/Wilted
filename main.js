@@ -48,10 +48,7 @@ function start() {
     if (json.channel == 'track') {
       var song = json.payload;
       if (song.title.toLowerCase().indexOf('(explicit)') > -1) {
-        song.title = song.title.replace(/(explicit)/ig, '');
-        if (song.title.indexOf('()') > -1) {
-          song.title = song.title.replace('()', '');
-        }
+        song.title = song.title.replace(/\(explicit\)/ig, '').trim();
       }
       var scrobbleData = {
         song: song.title,
